@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müzik Çalar</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin-top: 50px; 
+            background: #121212;
+            color: white;
+        }
+        .player {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        button {
+            margin: 5px; 
+            padding: 10px; 
+            cursor: pointer; 
+            border: none;
+            background: #ff5722;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #e64a19;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .file-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <h2>Müzik Çalar</h2>
+        <audio id="audio"></audio>
+        <input type="file" id="fileInput" accept="audio/*" multiple>
+        <br><br>
+        <button onclick="playPause()">▶️ / ⏸️</button>
+        <button onclick="stopMusic()">⏹️</button>
+        <input type="range" id="seekBar" min="0" step="1" value="0" onchange="seek()">
+        <br>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="1" onchange="setVolume()">
+        <div class="file-list" id="fileList"></div>
+    </div>
+
+    <script>
+        let audio = document.getElementById("audio");
+        let seekBar = document.getElementById("seekBar");
+        let fileInput = document.getElementById("fileInput");
+        let fileList = document.getElementById("fileList");
+        let files = [];
+
+        function playPause() {
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        }
+
+        function stopMusic() {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+
+        function setVolume() {
+            audio.volume = document.getElementById("volume").value;
+        }
+
+        function seek() {
+            audio.currentTime = seekBar.value;
+        }
+
+        audio.addEventListener("timeupdate", function() {
+            seekBar.max = audio.duration;
+            seekBar.value = audio.currentTime;
+        });
+
+        fileInput.addEventListener("change", function(event) {
+            files = Array.from(event.target.files);
+            fileList.innerHTML = "";
+            files.forEach((file, index) => {
+                let fileItem = document.createElement("div");
+                fileItem.innerHTML = `<button onclick="playFile(${index})">▶️ ${file.name}</button>`;
+                fileList.appendChild(fileItem);
+            });
+        });
+
+        function playFile(index) {
+            let file = files[index];
+            if (file) {
+                let objectURL = URL.createObjectURL(file);
+                audio.src = objectURL;
+                audio.play();
+            }
+        }
+    </script>
+</body>
+</html>
+
